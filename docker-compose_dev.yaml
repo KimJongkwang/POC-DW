@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  timescaledb:
+    image: timescale/timescaledb-ha:pg16
+    container_name: timescaledb
+    env_file:
+      - .dev.env
+    environment:
+      POSTGRES_USER: poc
+      POSTGRES_PASSWORD: poc
+      POSTGRES_DB: poc
+    deploy:
+      resources:
+        limits:
+          cpus: "${CPU_LIMITS}"
+          memory: "${MEMORY_LIMITS}"
+    ports:
+      - "${PG_PORT}:5432"
+    volumes:
+      - "${VOLUME_PATH}/timescaledb:/var/lib/postgresql/data"
+
+  clickhouse:
+    image: yandex/clickhouse-server:latest
+    container_name: clickhouse
+    env_file:
+      - .dev.env
+    deploy:
+      resources:
+        limits:
+          cpus: "${CPU_LIMITS}"
+          memory: "${MEMORY_LIMITS}"
+    ports:
+      - "${CLICK_HTTP_PORT}:8123"
+      - "${CLICK_TCP_PORT}:9000"
+    volumes:
+      - "${VOLUME_PATH}/clickhouse:/var/lib/clickhouse"
+
+volumes:
+  timescaledb_data: 
+  clickhouse_data: 
