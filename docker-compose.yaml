@@ -4,8 +4,6 @@ services:
   timescaledb:
     image: timescale/timescaledb-ha:pg16
     container_name: timescaledb
-    env_file:
-      - .dev.env
     environment:
       POSTGRES_USER: poc
       POSTGRES_PASSWORD: poc
@@ -23,8 +21,10 @@ services:
   clickhouse:
     image: yandex/clickhouse-server:latest
     container_name: clickhouse
-    env_file:
-      - .dev.env
+    environment:
+      CLICKHOUSE_USER: poc
+      CLICKHOUSE_PASSWORD: poc
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
     deploy:
       resources:
         limits:
@@ -36,6 +36,17 @@ services:
     volumes:
       - "${VOLUME_PATH}/clickhouse:/var/lib/clickhouse"
 
+  data_init:
+    build:
+      context: ./insert_data
+      dockerfile: Dockerfile
+    container_name: initial_data
+    depends_on:
+      - timescaledb
+      - clickhouse
+    volumes:
+      - "${VOLUME_PATH}/test_data:/data/test_data"
+
 volumes:
   timescaledb_data: 
-  clickhouse_data: 
+  clickhouse_data:
